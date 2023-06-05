@@ -1,38 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { ContactForm } from './ContactForm/ContactForm';
 import { Filter } from './Filter/Filter';
 import { ContactList } from './ContactList/ContactList';
 import { nanoid } from 'nanoid';
 import style from './App.module.css';
+import { setFilter, addContact } from 'redux/slice';
 
 export const App = () => {
-  const [contacts, setContacts] = useState([
-    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-  ]);
-
-  const [firstRenderFlag, setFlag] = useState(true);
-
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    if (firstRenderFlag) {
-      const contactsFromLocalStorage = localStorage.getItem('contacts');
-
-      if (contactsFromLocalStorage !== 'undefined') {
-        const parsedContacts = JSON.parse(contactsFromLocalStorage);
-
-        if (parsedContacts) {
-          setContacts(parsedContacts);
-        }
-      }
-      setFlag(false);
-    } else {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-    }
-  }, [contacts, firstRenderFlag]);
+  const contacts = useSelector(state => state.contacts);
+  const filter = useSelector(state => state.filter);
+  const dispatch = useDispatch();
 
   const add = ({ name, number }) => {
     const lowerCase = name.toLowerCase();
@@ -51,11 +28,11 @@ export const App = () => {
       return;
     }
 
-    setContacts(prevState => prevState.concat(newContact));
+    dispatch(addContact(newContact));
   };
 
   const handleChangeFilter = e => {
-    setFilter(e.currentTarget.value);
+    dispatch(setFilter(e.currentTarget.value));
   };
 
   const filterItems = () => {
@@ -64,16 +41,12 @@ export const App = () => {
     );
   };
 
-  const deleteContact = idToDelete => {
-    setContacts(contacts.filter(contact => contact.id !== idToDelete));
-  };
-
   return (
     <div>
       <h1 className={style.header}>Phonebook</h1>
       <ContactForm onSubmit={add} />
       <Filter value={filter} onChange={handleChangeFilter} />
-      <ContactList contacts={filterItems()} toDelete={deleteContact} />
+      <ContactList contacts={filterItems()} />
     </div>
   );
 };
