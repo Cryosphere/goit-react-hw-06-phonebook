@@ -13,8 +13,9 @@ import {
 import { reducer } from './slice';
 
 const persistConfig = {
-  key: 'root',
+  key: 'contacts',
   storage,
+  blacklist: ['filter'],
 };
 
 const persistedReducer = persistReducer(persistConfig, reducer);

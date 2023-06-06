@@ -12,28 +12,6 @@ export const ContactForm = () => {
   const contacts = useSelector(state => state.contacts);
   const dispatch = useDispatch();
 
-  const add = ({ name, number }) => {
-    const lowerCase = name.toLowerCase();
-    let onList = false;
-
-    const newContact = { id: nanoid(), name: name, number: number };
-
-    contacts.forEach(contact => {
-      if (contact.name.toLowerCase() === lowerCase) {
-        alert(`${contact.name} is already in contacts`);
-        onList = true;
-      }
-    });
-
-    if (onList) {
-      return;
-    }
-
-    dispatch(addContact(newContact));
-  };
-  const nameId = nanoid();
-  const numberId = nanoid();
-
   const handleName = e => {
     const { value } = e.target;
     setName(value);
@@ -46,12 +24,26 @@ export const ContactForm = () => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    const form = e.currentTarget;
-    add({ name: name, number: number, id: nanoid() });
-    form.reset();
+
+    const lowerCase = name.toLowerCase();
+    const contactExists = contacts.some(
+      contact => contact.name.toLowerCase() === lowerCase
+    );
+
+    if (contactExists) {
+      alert(`${name} is already in contacts`);
+      return;
+    }
+
+    const newContact = { id: nanoid(), name, number };
+    dispatch(addContact(newContact));
+
     setName('');
     setNumber('');
   };
+
+  const nameId = nanoid();
+  const numberId = nanoid();
 
   return (
     <form className={style.form} onSubmit={handleSubmit}>
